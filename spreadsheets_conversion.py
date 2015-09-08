@@ -1,3 +1,7 @@
+#!usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 def spreadsheets_conversion(cell_name):
     """
     The first column has number A, the second — number B, etc.
@@ -14,8 +18,10 @@ def spreadsheets_conversion(cell_name):
     """
     if cell_name.startswith('R') and cell_name[1].isdigit():
         if 'C' not in cell_name:
-            temp = [i for i in cell_name if i.isdigit()]
-            return ''.join([str(i) for i in temp])
+            row = [i for i in cell_name if i.isdigit()]
+            col = [i for i in cell_name if i.isalpha()]
+
+            return 'R' + ''.join(row) + "C" + str(col_to_int(''.join(col)))
         row, col = cell_name.split('C')
         row = row[1:]
         return int_to_col(int(col)) + row
@@ -34,47 +40,40 @@ def spreadsheets_conversion(cell_name):
     return col_to_int(col)
 
 
-def int_to_col(n):
+def int_to_col(num, base=26):
     """
     Take an integer and return its corresponding column name
     实际上等于将10进制转换成26进制
     """
-    import string
-    alphas = string.ascii_uppercase
-    indexes = []
-    while n >= 26:
-        n, mod = divmod(n, 26)
-        indexes.insert(0, mod)
-    indexes.insert(0, n)
-    indexes = [alphas[i - 1] for i in indexes]
-    return ''.join(indexes)
+    alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    col = ''
+    while num:
+        mod = (num - 1) % 26
+        num = int((num - mod) / 26)
+        col += alphas[mod]
+    return col[::-1]
 
 
 def col_to_int(col_name):
     """return a base10 integer
     """
-    import string
-    alphas = string.ascii_uppercase
-    col_name = col_name.upper()
-    res = [(alphas.index(i) + 1) for i in col_name]
-    res = res[::-1]
-    output = 0
-    for index, val in enumerate(res):
-        output += val * (26 ** index)
-    return output
+    alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-print(int_to_col(494))
-print(col_to_int('RZ'))
+    res = [alphas.index(i) + 1 for i in col_name]
+    return sum(val * (26 ** index) for index, val in enumerate(res[::-1]))
 
 
-print(spreadsheets_conversion("RZ228"))
-print(spreadsheets_conversion("R23C55"))
-print(spreadsheets_conversion("BC23"))
-# params = []
-# temp = input()
-# for i in range(int(temp)):
-#     temp = input()
-#     params.append(temp)
+# print(spreadsheets_conversion("R853"))
+# print(spreadsheets_conversion("RZ228"))
+# print(spreadsheets_conversion("ZL98"))
+# print(col_to_int("RZ"))
+# print(int_to_col(494))
 
-# for i in params:
-#     print(spreadsheets_conversion(i))
+params = []
+temp = input()
+for i in range(int(temp)):
+    temp = input()
+    params.append(temp)
+
+for i in params:
+    print(spreadsheets_conversion(i))
